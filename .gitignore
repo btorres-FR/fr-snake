@@ -1,0 +1,12 @@
+# Ignore Rust build artifacts
+/snake-core/target/
+/snake-core/pkg/
+
+# Ignore front-end node_modules if you add any later
+snake-web/node_modules/
+
+# Ignore VSCode settings
+.vscode/
+
+# Ignore Docker‐related state (optional)
+.devcontainer/.docker/
