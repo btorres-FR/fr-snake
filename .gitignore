@@ -1,0 +1,8 @@
+# Ignore Rust build artifacts
+/snake-core/target/
+/snake-core/pkg/
+
+# Ignore VSCode settings
+.vscode/
+
+.devcontainer/.docker/
