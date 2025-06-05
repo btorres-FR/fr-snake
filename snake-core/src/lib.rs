@@ -13,12 +13,12 @@ pub struct SnakeGame {
     food: (u32, u32),
     game_over: bool,
     score: u32,
+    allow_dir_change: bool,
 }
 
 #[wasm_bindgen]
 impl SnakeGame {
-    /// Construct a new SnakeGame bound to <canvas id=canvas_id> with a grid size of `grid_size × grid_size`.
-    /// Returns `Err(JsValue)` if we fail to find or cast the canvas/context.
+
     #[wasm_bindgen(constructor)]
     pub fn new(canvas_id: &str, grid_size: u32) -> Result<SnakeGame, JsValue> {
         // 1) Get the Window and Document
@@ -61,6 +61,9 @@ impl SnakeGame {
         // Score
         let score = 0;
 
+        // Directional change
+        let allow_dir_change = true;
+
         Ok(SnakeGame {
             ctx,
             width,
@@ -71,13 +74,20 @@ impl SnakeGame {
             food,
             game_over: false,
             score,
+            allow_dir_change,
         })
     }
 
-    /// Change the snake's direction. Prevent 180° reversal.
     pub fn change_direction(&mut self, dx: i32, dy: i32) {
+        // Only allow one accepted change per tick:
+        if !self.allow_dir_change {
+            return;
+        }
+
+        // Prevent 180° reversal of the *current* direction.
         if (dx, dy) != (-self.dir.0, -self.dir.1) {
             self.dir = (dx, dy);
+            self.allow_dir_change = false; // block further changes until next update()
         }
     }
 
@@ -124,6 +134,10 @@ impl SnakeGame {
         } else {
             self.snake.pop();
         }
+
+        // After all movement logic (including eating, spawning new food, etc.),
+        // reset the flag so that the next tick can accept exactly one new direction change:
+        self.allow_dir_change = true;
     }
 
     /// Draw the current state: clear canvas, draw food + snake, draw "Game Over" if ended.
@@ -157,12 +171,6 @@ impl SnakeGame {
             );
         }
 
-        // Score
-        self.ctx.set_fill_style_str("white");
-        self.ctx.set_font("20px sans-serif");
-        let score_text = format!("Score: {}", self.score);
-        self.ctx.fill_text(&score_text, 10.0, 25.0).ok();
-
         // Game over
         if self.game_over {
             self.ctx.set_fill_style_str("white");
@@ -178,6 +186,11 @@ impl SnakeGame {
     #[wasm_bindgen(getter)]
     pub fn is_game_over(&self) -> bool {
         self.game_over
+    }
+
+    #[wasm_bindgen(getter)]
+    pub fn score(&self) -> u32 {
+        self.score
     }
 
     /// Pick a random empty cell for the next food.
