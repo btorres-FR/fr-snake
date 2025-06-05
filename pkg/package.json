@@ -1,0 +1,15 @@
+{
+  "name": "snake-core",
+  "type": "module",
+  "version": "0.1.0",
+  "files": [
+    "snake_core_bg.wasm",
+    "snake_core.js",
+    "snake_core.d.ts"
+  ],
+  "main": "snake_core.js",
+  "types": "snake_core.d.ts",
+  "sideEffects": [
+    "./snippets/*"
+  ]
+}
